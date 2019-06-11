@@ -1,0 +1,6 @@
+[submodule "emacs-prelude"]
+	path = emacs/.emacfg/prelude
+	url = https://github.com/bbatsov/prelude
+[submodule "tmux-powerline"]
+	path = tmux/.tmux/tmux-powerline
+	url = https://github.com/erikw/tmux-powerline

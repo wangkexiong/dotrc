@@ -1,0 +1,11 @@
+[core]
+    symlinks = true
+[user]
+    name = wangkexiong
+    email = wangkexiong@gmail.com
+[push]
+    default = simple
+[url "https://"]
+    insteadOf = git://
+[credential]
+    helper = cache --timeout=300
