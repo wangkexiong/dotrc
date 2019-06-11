@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-SOURCED
+SOURCED=0
+if [ -n "$ZSH_EVAL_CONTEXT" ]; then 
+  case $ZSH_EVAL_CONTEXT in *:file) SOURCED=1;; esac
+elif [ -n "$KSH_VERSION" ]; then
+  [ "$(cd $(dirname -- $0) && pwd -P)/$(basename -- $0)" != "$(cd $(dirname -- ${.sh.file}) && pwd -P)/$(basename -- ${.sh.file})" ] && SOURCED=1
+elif [ -n "$BASH_VERSION" ]; then
+  (return 0 2>/dev/null) && SOURCED=1 
+else # All other shells: examine $0 for known shell binary filenames
+  # Detects `sh` and `dash`; add additional shell filenames as needed.
+  case ${0##*/} in sh|dash) SOURCED=1;; esac
+fi
+
+if [ -n "$http_proxy" ]; then
+  ## While using Git protocol for fetching, like git://xxxxxxxx/xxxx.git,
+  #  we can set A "proxy command" to execute (as command host port)
+  #  instead of establishing direct connection to the remote server.
+  export GIT_PROXY_COMMAND=/tmp/gitproxy
+
+  cat > $GIT_PROXY_COMMAND <<EOF
+#!/bin/bash
+_proxy="$(echo $http_proxy | cut -d/ -f3 | cut -d: -f1)"
+_proxyport="$(echo $http_proxy | cut -d/ -f3 | cut -d: -f2)"
+
+/usr/bin/socat - PROXY:\$_proxy:\$1:\$2,proxyport=\$_proxyport
+EOF
+
+  chmod +x $GIT_PROXY_COMMAND
+fi
+
+## If the script is SOURCED, just give above settings.
+#  We DO NOT need to run git command here...
+if [ "$SOURCED" -eq 0 ]; then
+  /bin/git "$@"
+fi
+
