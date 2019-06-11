@@ -1,0 +1,9 @@
+startup_message off
+escape ^Zz
+defscrollback 1024
+caption always "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %H %{..Y} %m/%d %C%a "
+
+vbell off
+bind w windowlist -b
+bind ^w windowlist -b
+

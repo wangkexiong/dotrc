@@ -1,0 +1,50 @@
+# .bashrc
+## The best way is to source this in original .bashrc
+
+### Get to know the difference of .bash_profile .bashrc .profile
+# https://unix.stackexchange.com/questions/88106/why-doesnt-my-bash-profile-work
+
+### Check to do sth if shell is interactive
+#if [[ $- == *i* ]]; then
+#fi
+
+### Bash History settings
+shopt -s histappend
+export HISTCONTROL=ignoreboth
+export HISTIGNORE="mysql *:pkg-config *:vi *:pwd:cd *:history:history *:ls:ls *:dir:dir *:rm -rf*:exit"
+export HISTSIZE=2000
+export HISTFILESIZE=2000
+export HISTTIMEFORMAT="%d/%m/%y %T "
+
+### Using vi for default text editor
+export EDITOR=vim
+
+### Command Prompt settings
+function _ps1_prompt_hook() {
+  local LAST_STATUS=$?
+  local COLOR_RESET='\[\e[m\]'
+  local COLOR_LIGHT_GRAY='\[\e[30;1m\]'
+  local COLOR_RED='\[\e[31m\]'
+  local COLOR_GREEN='\[\e[32m\]'
+  local COLOR_LIGHT_BROWN='\[\e[33;1m\]'
+  local COLOR_LIGHT_CRAN='\[\e[36;1m\]'
+
+  PS1="${COLOR_LIGHT_GRAY}[${SHLVL}](\#/\!)[\D{%Y/%m/%d %T}](\D{%W}w)${COLOR_RESET}\n"
+  PS1="${PS1}[${COLOR_LIGHT_CRAN}\u${COLOR_RESET}@${COLOR_LIGHT_BROWN}\h${COLOR_RESET} \W]"
+  PS1="${PS1}$([[ ${LAST_STATUS} = 0 ]] && echo ${COLOR_GREEN} || echo ${COLOR_RED})\\\$${COLOR_RESET} "
+
+  # direnv blacklists PS1 to be changed
+  PS1='$([[ -n "$VIRTUAL_ENV" && -n "$DIRENV_DIR" ]] && echo "($(basename $VIRTUAL_ENV))")'"$PS1"
+  # update current directory variable for tmux to create new session with latest one
+  PS1="$PS1"'$([ -n "$TMUX" ] && tmux setenv TMUXPWD_$(tmux display -p "#D" | tr -d %) "$PWD")'
+}
+[[ "${PROMPT_COMMAND}" == *"_ps1_prompt_hook"* ]] || {
+  [[ -n ${PROMPT_COMMAND} ]] && PROMPT_COMMAND="_ps1_prompt_hook;${PROMPT_COMMAND}" || PROMPT_COMMAND="_ps1_prompt_hook"
+}
+
+### Get all parts in
+[ -f ~/.bash_functions ] && source ~/.bash_functions
+[ -f ~/.bash_aliases ]   && source ~/.bash_aliases
+[ -f ~/.docker_aliases ] && source ~/.docker_aliases
+[ -f ~/.profile2 ]       && source ~/.profile2
+
