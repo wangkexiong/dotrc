@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Comments to support chkconfig on RedHat Linux
+# chkconfig: 2345 90 10
+# description: Startup script for fcgiwrap
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+APPNAME=fcgiwrap
+PROG=/opt/web/fcgiwrap/sbin/fcgiwrap
+SOCKFILE=/var/run/nginx/nginx-fcgi.sock
+LOCKFILE=/var/lock/subsys/fcgiwrap
+USER=www
+
+RETVAL=0
+
+getpid() {
+  PID=`ps aux | grep "^$USER.*$SOCKFILE$" | awk '{print $2}'`
+}
+
+start() {
+  getpid
+  if [ ! -z $PID ]; then
+    echo "$APPNAME is still running"
+    return 1
+  fi
+
+  echo -n "Starting $APPNAME: "
+  if [ -e $SOCKFILE ]; then
+    rm $SOCKFILE
+  fi
+
+  su - --shell=/bin/bash -p $USER -c "$PROG -s unix:$SOCKFILE" 2>&1 &
+
+  RETVAL=$?
+  if [ $RETVAL = 0 ]; then
+    touch $LOCKFILE
+    echo "OK"
+  fi
+  return $RETVAL
+}
+
+stop() {
+  getpid
+  if [ -z $PID ]; then
+    echo "$APPNAME is not running"
+    return 0
+  fi
+  
+  echo -n "Stopping $APPNAME: "
+  kill -SIGTERM $PID
+
+  RETVAL=$?
+  if [ $RETVAL = 0 ]; then
+    rm $LOCKFILE
+    echo "OK"
+    if [ -e $SOCKFILE ]; then
+      rm $SOCKFILE
+    fi
+  fi
+
+  return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    getpid
+    if [ ! -z $PID ]; then
+      echo "$APPNAME is running, pid is $PID"
+    else
+      echo "$APPNAME is not running"
+    fi
+    ;;
+  restart)
+    stop
+    sleep 1
+    start
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $RETVAL
+

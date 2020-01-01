@@ -1,0 +1,21 @@
+#! /bin/bash
+
+unset PKG_CONFIG_PATH
+
+for dir in `find "$1" -maxdepth 1 -type l`
+do
+  for libdir in `find $dir/ -maxdepth 1 -type l`
+  do
+    if [ -d $libdir/lib/pkgconfig ]; then
+      if [ -z $PKG_CONFIG_PATH ]; then
+        PKG_CONFIG_PATH=$libdir/lib/pkgconfig
+      else
+        PKG_CONFIG_PATH=$libdir/lib/pkgconfig:$PKG_CONFIG_PATH
+      fi
+    fi
+  done
+done
+
+export PKG_CONFIG_PATH
+echo $PKG_CONFIG_PATH
+

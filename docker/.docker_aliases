@@ -1,0 +1,138 @@
+# ------------------------------------
+# Docker Commands Shortcuts
+# ------------------------------------
+
+# Get latest container ID
+alias dl='docker ps -l -q'
+
+# Get container process
+alias dps='docker ps'
+
+# Get process included stop container
+alias dpa='docker ps -a'
+
+# Get stop container
+alias dpe='docker ps -f status=exited'
+
+# Get images
+alias di='docker images'
+
+# Get container IP
+alias dip="docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
+
+# Run deamonized container, e.g., $dkd base /bin/echo hello
+alias dkd='docker run -d -P'
+dpkd() {
+  local CMD="docker run -d -P"
+  if [ -n "$http_proxy" ]; then
+    CMD="$CMD -e http_proxy=$http_proxy"
+    if [ -n "$https_proxy" ]; then
+      CMD="$CMD -e https_proxy=$https_proxy"
+    fi
+    if [ -n "$no_proxy" ]; then
+      CMD="$CMD -e no_proxy=$no_proxy"
+    fi
+
+    $CMD "$@"
+  else
+    echo "http_proxy is NOT set..."
+    echo
+  fi
+}
+
+# Run interactive container, e.g., $dki base /bin/bash
+alias dki='docker run -i -t -P'
+alias wdki='winpty docker run -i -t -P'
+dpki() {
+  local CMD="docker run -i -t -P"
+  if [ -n "$http_proxy" ]; then
+    CMD="$CMD -e http_proxy=$http_proxy"
+    if [ -n "$https_proxy" ]; then
+      CMD="$CMD -e https_proxy=$https_proxy"
+    fi
+    if [ -n "$no_proxy" ]; then
+      CMD="$CMD -e no_proxy=$no_proxy"
+    fi
+
+    $CMD "$@"
+  else
+    echo "http_proxy is NOT set..."
+    echo
+  fi
+}
+
+# Execute interactive container, e.g., $dex base /bin/bash
+alias dex='docker exec -i -t'
+alias wdex='winpty docker exec -i -t'
+
+# Stop all containers
+alias dstop='docker stop $(docker ps -a -q)'
+
+# Remove all containers
+alias drm='docker rm `dpe -a -q`'
+
+# Stop and Remove all containers
+alias drmf='docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)'
+
+# Dockerfile build, e.g., $dbu tcnksm/test
+dbu() { docker build -t=$1 .; }
+dpbu() {
+  local CMD="docker build -t=$1"
+  if [ -n "$http_proxy" ]; then
+    CMD="$CMD --build-arg http_proxy=$http_proxy"
+    if [ -n "$https_proxy" ]; then
+      CMD="$CMD --build-arg https_proxy=$https_proxy"
+    fi
+    if [ -n "$no_proxy" ]; then
+      CMD="$CMD --build-arg no_proxy=$no_proxy"
+    fi
+
+    $CMD .
+  else
+    echo "http_proxy is NOT set..."
+    echo
+  fi
+}
+
+# Show all alias related docker
+dalias() { alias | grep 'docker' | sed "s/^\([^=]*\)=\(.*\)/\1 => \2/"| sed "s/['|\']//g" | sort; }
+
+# ------------------------------------
+# Docker-Machine Shortcuts
+# ------------------------------------
+
+# Attach Docker Server
+dm-env() { eval "$(docker-machine env ${*:-default})"; }
+
+# ------------------------------------
+# K8s Shortcuts
+# ------------------------------------
+alias kga='kubectl get all --all-namespaces'
+kshell() {
+  local CMD="kubectl run -it --rm --restart=Never --image-pull-policy=IfNotPresent k8s-job-shell --command=true"
+  if [ -n "$http_proxy" ]; then
+    CMD="$CMD --env=http_proxy=\"$http_proxy\""
+    if [ -n "$https_proxy" ]; then
+      CMD="$CMD --env=https_proxy=\"$https_proxy\""
+    fi
+    if [ -n "$no_proxy" ]; then
+      CMD="$CMD --env=no_proxy=\"$no_proxy\""
+    fi
+  fi
+
+  if [ "x$1" = "x" ]; then
+    CMD="$CMD -n default --image=alpine -- /bin/sh"
+  else
+    if [ "x$2" = "x" ]; then
+      CMD="$CMD -n $1 --image=alpine -- /bin/sh"
+    else
+      if [ "x$3" = "x" ]; then
+        CMD="$CMD -n $1 --image=$2 -- /bin/sh"
+      else
+        CMD="$CMD -n $1 --image=$2 -- $3"
+      fi
+    fi
+  fi
+
+  $CMD
+}

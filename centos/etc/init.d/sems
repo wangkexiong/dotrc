@@ -1,0 +1,75 @@
+#!/bin/bash
+#
+# Startup script for SEMS - SIP Media Service
+# chkconfig: 345 91 9
+# description: SIP application server
+#
+# processname: sems
+# pidfile: /var/run/sems.pid
+# config: /opt/sems/etc/sems/sems.conf
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+sems=/opt/telephony/sems/sbin/sems
+sems_CONFIG=/opt/telephony/sems/etc/sems/sems.conf
+sems_PID=/var/run/sipapp/sems.pid
+sems_user=sip
+sems_group=sip
+RETVAL=0
+
+start() {
+        echo -n $"Starting SEMS: "
+        daemon $sems -f $sems_CONFIG -P $sems_PID -u $sems_user -g $sems_group
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && touch /var/lock/subsys/sems
+        return $RETVAL
+}
+
+stop() {
+        echo -n $"Stopping SEMS: "
+        killproc $sems
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && rm -f /var/lock/subsys/sems /var/run/sems.pid
+        return $RETVAL
+}
+
+reload() {
+        echo -n $"Reloading SEMS: "
+        killproc $sems -HUP
+        RETVAL=$?
+        echo
+}
+
+# See how we were called.
+case "$1" in
+        start)
+                start
+                ;;
+        stop)
+                stop
+                ;;
+        status)
+                status $sems
+                RETVAL=$?
+                ;;
+        restart)
+                stop
+                sleep 3
+                start
+                ;;
+        condrestart)
+                if [ -f /var/run/sems.pid ] ; then
+                        stop
+                        start
+                fi
+                ;;
+        *)
+                echo $"Usage: $prog {start|stop|restart|condrestart|status|help}"
+        exit 1
+esac
+
+exit $RETVAL
+

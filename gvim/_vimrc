@@ -1,0 +1,36 @@
+" Author: wangkexiong
+" Source: https://github.com/wangkexiong/dotrc/blob/master/gvim/_vimrc
+" Precondition: Need to install git first.
+"               Vundle and other bundle plugins will be cloned using git.
+" License: MIT License.
+
+" Win32 Specific Configuration
+if has("win32")
+    " Max editor window
+    if has("gui_running")
+        autocmd GUIEnter * simalt ~x
+        source $VIMRUNTIME/mswin.vim
+
+        " Favourite font setting
+        set guifont=Fira_code:h11
+        set guifontwide=新宋体:h11      " Sometimes change file encoding to CP939 for Chinese font
+    endif
+
+    " Set configure directory
+    let $CONF=$VIM.'/.vimcfg'
+    " Set work directory
+    let $WORK=$VIM.'/vimfiles'
+    " Set overriding configuration
+    let s:personal_conf=$VIM.'/personal.vim'
+endif
+
+source $CONF/vundlewrapper.vim          " vundle automatic installation
+source $CONF/common.vim                 " Common settings
+source $CONF/plugins.vim                " Using vundle to manage vim plugins
+source $CONF/programming.vim            " Programming settings
+source $CONF/bindkeys.vim               " Binding shortcuts
+
+if filereadable(s:personal_conf)
+    execute 'source '.s:personal_conf
+endif
+
