@@ -11,8 +11,10 @@ function _ps1_prompt_hook() {
   local COLOR_LIGHT_BROWN='\[\e[33;1m\]'
   local COLOR_LIGHT_CRAN='\[\e[36;1m\]'
   local COLOR_ON_GREEN='\[\e[42m\]'
+  local OS_PROMPT=""
+  local PWD_TRUNCATE="$(echo ${PWD/#${HOME}/\~} | awk '{ if (length($0) > 60) print "➥ " substr($0, length($0)-58); else print $0 }')"
 
-  local left=${COLOR_GREEN}${COLOR_RESET}${COLOR_ON_GREEN}" "$(echo ${PWD/#$HOME/\~})${COLOR_RESET}${COLOR_GREEN}${COLOR_RESET}
+  local left=${COLOR_GREEN}${COLOR_RESET}${COLOR_ON_GREEN}"${OS_PROMPT} ${PWD_TRUNCATE}"${COLOR_RESET}${COLOR_GREEN}${COLOR_RESET}
   local __PS1_COMPENSATION=0
 
   if [ ${LAST_STATUS} = 0 ]; then
