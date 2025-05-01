@@ -43,8 +43,10 @@ function _ps1_prompt_hook() {
 }
 
 ### Get all parts in
-[ -f ~/.bash_functions ] && source ~/.bash_functions
-[ -f ~/.bash_aliases ]   && source ~/.bash_aliases
-[ -f ~/.docker_aliases ] && source ~/.docker_aliases
-[ -f ~/.profile2 ]       && source ~/.profile2
+CURR_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
+[ -f ${CURR_DIR}/bash_functions ] && source ${CURR_DIR}/bash_functions
+[ -f ${CURR_DIR}/bash_aliases ] && source ${CURR_DIR}/bash_aliases
+[ -f ${CURR_DIR}/docker_aliases ] && source ${CURR_DIR}/docker_aliases
+
+[ -f ~/.config/customized/profile ] && source ~/.config/customized/profile || true

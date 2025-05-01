@@ -21,18 +21,18 @@ function _ps1_prompt_hook() {
     PS1="💚"
   else
     PS1="${COLOR_RED}(${LAST_STATUS})${COLOR_RESET}💥"
-    __PS1_COMPENSATION=$(($(expr length ${LAST_STATUS})+2))
+    __PS1_COMPENSATION=$(($(expr length ${LAST_STATUS}) + 2))
   fi
   PS1="$PS1 ${COLOR_LIGHT_GRAY}\D{%Y(%Ww) %m/%d}-\t${COLOR_RESET}"
   # The reason why we need compensation is the escape codes from ANSI and PS1, like colors and special variables.
-  # The string will be varying while render in the final, which will impact the rendering position. 
-  __PS1_COMPENSATION=$((${#PS1}-${__PS1_COMPENSATION}-$(expr length "$left")+30))
-  PS1=$(tput sc)$(printf "%*s" $(($(tput cols)+${__PS1_COMPENSATION})) "$PS1")$(tput rc)
+  # The string will be varying while render in the final, which will impact the rendering position.
+  __PS1_COMPENSATION=$((${#PS1} - ${__PS1_COMPENSATION} - $(expr length "$left") + 30))
+  PS1=$(tput sc)$(printf "%*s" $(($(tput cols) + ${__PS1_COMPENSATION})) "$PS1")$(tput rc)
   PS1='\n'${left}$PS1
   PS1=$PS1'\n\$ '
+  PS1="$PS1"'$([ -n "$TMUX" ] && tmux setenv TMUXPWD_$(tmux display -p "#D" | tr -d %) "$PWD")'
 }
 
 [[ "${PROMPT_COMMAND}" == *"_ps1_prompt_hook"* ]] || {
   [[ -n ${PROMPT_COMMAND} ]] && PROMPT_COMMAND="_ps1_prompt_hook;${PROMPT_COMMAND}" || PROMPT_COMMAND="_ps1_prompt_hook"
 }
-

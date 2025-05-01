@@ -21,7 +21,7 @@ if !has("win32")
     " Set work directory
     let $WORK=$HOME.'/.vim'
     " Set overriding configuration
-    let s:personal_conf=$HOME.'/personal.vim'
+    let s:personal_conf=$HOME.'/.config/customized/personal.vim'
 endif
 
 source $CONF/vundlewrapper.vim          " vundle automatic installation

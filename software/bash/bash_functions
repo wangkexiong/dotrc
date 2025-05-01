@@ -63,3 +63,11 @@ pidtree() {
   tput smam
 }
 
+importrc() {
+  for f in "$@"; do
+    if [[ -f "${f}" ]]; then
+      source "${f}"
+    fi
+  done
+}
+
